@@ -30,6 +30,9 @@ model User {
   priceStart  Int?      // Harga mulai dari
   totalJobs   Int?      // Berapa job telah diselesaikan
   rating      Float?    // Rating rata-rata
+
+  jobsPosted      Job[]          @relation("UserJobs")        // sebagai company
+  applications    Application[]  @relation("UserApplications") // sebagai freelancer
 }
 
 
@@ -37,4 +40,51 @@ enum Role {
   FREELANCER
   COMPANY
   ADMIN
+}
+
+model Job {
+  id                  Int        @id @default(autoincrement())
+  title               String
+  description         String
+  role                String
+  minSalary           Int
+  maxSalary           Int
+  image               String?
+  location            Location
+  applicationDeadline DateTime
+  contractDeadline    DateTime
+  status              JobStatus  @default(OPEN)
+  companyId           Int
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  company             User       @relation("UserJobs", fields: [companyId], references: [id])
+  applications        Application[]
+}
+
+model Application {
+  id          Int       @id @default(autoincrement())
+  jobId       Int
+  freelancerId Int
+  status      String     @default("pending") // pending, approved, rejected
+  createdAt   DateTime   @default(now())
+
+  job         Job        @relation(fields: [jobId], references: [id])
+  freelancer  User       @relation("UserApplications", fields: [freelancerId], references: [id])
+}
+
+enum Location {
+  Jakarta
+  Bandung
+  Surabaya
+  Semarang
+  Yogyakarta
+  Malang
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  ONGOING
+  COMPLETED
 }

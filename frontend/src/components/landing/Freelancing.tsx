@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import SubmitButton from "./SubmitButton";
+import SubmitButton from "../SubmitButton";
 import { hiringCards, workingCards, CardData } from "@/data/freelancing";
 
 const Freelancing: React.FC = () => {

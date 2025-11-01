@@ -2,7 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
-import SubmitButton from "./SubmitButton";
+import SubmitButton from "../SubmitButton";
+import Link from "next/link";
 
 interface HeroProps {
   title: string;
@@ -22,7 +23,9 @@ const Hero: React.FC<HeroProps> = ({ title, subtitle, imageSet }) => {
         <h1 className="text-3xl md:text-5xl font-medium leading-snug">{title}</h1>
         <p className=" text-lg w-19/20">{subtitle}</p>
         <div className="w-48 drop-shadow-sm drop-shadow-black">
-          <SubmitButton text="Get Started!" onClick={handleCtaClick} disabled={false} variant="gray_blue" />
+          <Link href="/auth">
+            <SubmitButton text="Get Started!" onClick={handleCtaClick} disabled={false} variant="gray_blue" />
+          </Link>
         </div>
       </div>
 

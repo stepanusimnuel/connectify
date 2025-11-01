@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import AuthLayout from "@/components/AuthLayout";
+import AuthLayout from "@/app/auth/components/AuthLayout";
 import FormField from "@/components/FormField";
 import SubmitButton from "@/components/SubmitButton";
 import { useRouter } from "next/navigation";
@@ -41,7 +41,7 @@ export default function RegisterPage() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -54,7 +54,12 @@ export default function RegisterPage() {
       if (res.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        router.push("/home");
+
+        if (role && role.toLowerCase() == "company") {
+          router.push("/dashboard/company");
+        } else if (role && role.toLowerCase() == "freelancer") {
+          router.push("/dashboard/freelancer");
+        }
       } else {
         alert(data.message || "Registration failed");
       }

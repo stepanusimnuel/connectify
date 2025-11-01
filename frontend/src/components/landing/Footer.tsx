@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Instagram } from "lucide-react";
-import ConnectifyText from "./ConnectifyText";
+import ConnectifyText from "../ConnectifyText";
 
 const Footer: React.FC = () => {
   return (

@@ -16,7 +16,7 @@ const FAQ: React.FC<FAQProps> = ({ title, subtitle }) => {
   };
 
   return (
-    <section className="w-full px-8 md:px-16 py-20 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <section id="faq" className="w-full px-8 md:px-16 py-20 grid grid-cols-1 md:grid-cols-3 gap-10">
       {/* LEFT COLUMN */}
       <div>
         <h2 className="text-3xl font-semibold text-[#01367B] mb-2">{title}</h2>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import AuthLayout from "@/components/AuthLayout";
+import AuthLayout from "@/app/auth/components/AuthLayout";
 import FormField from "@/components/FormField";
 import SubmitButton from "@/components/SubmitButton";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -35,11 +35,10 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (res.ok) {
-        if (formData.remember) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-        router.push("/home");
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        router.push("/dashboard");
       } else {
         alert(data.message || "Login failed");
       }

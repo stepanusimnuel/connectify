@@ -23,9 +23,6 @@ const NavLinks: React.FC = () => {
         <button onClick={() => scrollToSection("projects")} className="hover:text-blue-600 transition-colors">
           Projects
         </button>
-        <button onClick={() => scrollToSection("services")} className="hover:text-blue-600 transition-colors">
-          Services
-        </button>
         <button onClick={() => scrollToSection("faq")} className="hover:text-blue-600 transition-colors">
           FAQ
         </button>

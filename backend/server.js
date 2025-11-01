@@ -4,16 +4,23 @@ import dotenv from "dotenv";
 import { PrismaClient } from "./generated/prisma/index.js";
 import authRoutes from "./src/routes/auth.js";
 import userRoutes from "./src/routes/users.js";
+import jobRoutes from "./src/routes/job.js";
 
 dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/jobs", jobRoutes);
 
 app.get("/", (req, res) => {
   res.send("Connectify Backend is running!");

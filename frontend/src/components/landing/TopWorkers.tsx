@@ -8,27 +8,25 @@ const categories = ["Fullstack Developer", "UI/UX Designer", "Videographer", "Da
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
 
-const TopWorkers: React.FC = () => {
+const TopWorkers: React.FC<{ title?: string }> = ({ title = "Connectify's Top Workers" }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [viewAll, setViewAll] = useState(searchParams.get("viewAll") === "true");
   const [category, setCategory] = useState(searchParams.get("category") || "");
   const [workers, setWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const filtered = workers.filter((worker) => (worker.totalJobs ?? 0) > 1);
 
-  const shownWorkers = viewAll ? filtered : filtered.slice(0, 6);
+  const shownWorkers = filtered.length < 6 ? filtered : filtered.slice(0, 6);
 
   useEffect(() => {
     const fetchWorkers = async () => {
       setLoading(true);
       try {
-        let url = `${API_BASE}/api/users/top-freelancers`;
+        let url = `${API_BASE}/api/users/freelancers`;
         const params: string[] = [];
 
-        if (viewAll) params.push("viewAll=true");
         if (category) params.push(`category=${encodeURIComponent(category)}`);
 
         if (params.length > 0) url += `?${params.join("&")}`;
@@ -46,32 +44,29 @@ const TopWorkers: React.FC = () => {
     };
 
     fetchWorkers();
-  }, [viewAll, category]);
+  }, [category]);
 
-  const updateUrl = (newViewAll?: boolean, newCategory?: string) => {
+  const updateUrl = (newCategory?: string) => {
     const params = new URLSearchParams();
-    if (newViewAll) params.set("viewAll", "true");
     if (newCategory) params.set("category", newCategory);
     router.push(`?${params.toString()}`);
   };
 
   const handleViewAll = () => {
-    const newVal = !viewAll;
-    setViewAll(newVal);
-    updateUrl(newVal, category);
+    router.push("/auth");
   };
 
   const handleCategory = (cat: string) => {
     const newCat = cat === category ? "" : cat;
     setCategory(newCat);
-    updateUrl(viewAll, newCat);
+    updateUrl(newCat);
   };
 
   return (
-    <section className="w-full px-6 pb-26">
+    <section id="projects" className="w-full px-6 pb-26">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-[#01367B]">Connectify’s Top Workers</h2>
+        <h2 className="text-3xl font-bold text-[#01367B]">{title}</h2>
         <div className="flex gap-8">
           {/* Category Dropdown */}
           <div className="relative">
@@ -86,7 +81,7 @@ const TopWorkers: React.FC = () => {
           </div>
 
           {/* View All Button */}
-          <button onClick={handleViewAll} className={`px-12 py-3 text-sm font-medium rounded-md border border-gray-300 transition ${viewAll ? "bg-[#B0CFF5]" : "bg-transparent hover:bg-gray-100"}`}>
+          <button onClick={handleViewAll} className={`px-12 py-3 text-sm font-medium rounded-md border border-gray-300 transition bg-white hover:bg-[#B0CFF5] }`}>
             View All
           </button>
         </div>

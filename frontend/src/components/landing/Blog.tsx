@@ -8,7 +8,7 @@ import { blogs } from "@/data/blogs";
 
 const Blog: React.FC = () => {
   return (
-    <section className="w-full px-8 md:px-16 py-20 bg-white">
+    <section id="blog" className="w-full px-8 md:px-16 py-20 bg-white">
       {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-3xl font-semibold text-[#282938]">Blog & Event</h2>

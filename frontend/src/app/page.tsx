@@ -1,24 +1,18 @@
-// app/landing/page.tsx atau src/pages/landing.tsx
 "use client";
 
 import React from "react";
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import PopularService from "@/components/PopularService";
-import AboutUs from "@/components/AboutUs";
-import Freelancing from "@/components/Freelancing";
-import TopWorkers from "@/components/TopWorkers";
-import Testimonials from "@/components/Testimonials";
-import FAQ from "@/components/FAQ";
-import Blog from "@/components/Blog";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
+import PopularService from "@/components/landing/PopularService";
+import AboutUs from "@/components/landing/AboutUs";
+import Freelancing from "@/components/landing/Freelancing";
+import TopWorkers from "@/components/landing/TopWorkers";
+import Testimonials from "@/components/landing/Testimonials";
+import FAQ from "@/components/landing/FAQ";
+import Blog from "@/components/landing/Blog";
+import Footer from "@/components/landing/Footer";
 
 const LandingPage: React.FC = () => {
-  const isLoggedIn = true; // nanti bisa diganti berdasarkan auth state
-  const user = {
-    name: "John Doe",
-    image: "/client-icon.png",
-  };
   return (
     <main className="flex flex-col min-h-screen bg-white text-gray-900">
       {/* Navbar */}

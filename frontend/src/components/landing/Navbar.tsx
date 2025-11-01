@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import ConnectifyText from "./ConnectifyText";
+import ConnectifyText from "../ConnectifyText";
 import NavLinks from "./NavLinks";
 
 const Navbar: React.FC = () => {
