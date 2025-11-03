@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import { PrismaClient } from "./generated/prisma/index.js";
 import authRoutes from "./src/routes/auth.js";
 import userRoutes from "./src/routes/users.js";
-import jobRoutes from "./src/routes/job.js";
+import projectRoutes from "./src/routes/projects.js";
+import freelancerRoutes from "./src/routes/freelancers.js";
 
 dotenv.config();
 const app = express();
@@ -16,11 +17,14 @@ app.use(
     credentials: true,
   })
 );
+
+console.log(process.env.FRONTEND_URL);
 app.use(express.json());
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/jobs", jobRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/freelancers", freelancerRoutes);
 
 app.get("/", (req, res) => {
   res.send("Connectify Backend is running!");

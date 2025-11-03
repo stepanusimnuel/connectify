@@ -15,9 +15,6 @@ export const protect = async (req, res, next) => {
 
       const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
-      console.log("Auth header:", req.headers.authorization);
-      console.log("Decoded token:", decoded);
-      console.log("User from DB:", user);
       if (!user) return res.status(401).json({ message: "User not found" });
 
       req.user = user;

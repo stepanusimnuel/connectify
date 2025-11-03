@@ -24,7 +24,7 @@ const TopWorkers: React.FC<{ title?: string }> = ({ title = "Connectify's Top Wo
     const fetchWorkers = async () => {
       setLoading(true);
       try {
-        let url = `${API_BASE}/api/users/freelancers`;
+        let url = `${API_BASE}/api/freelancers/`;
         const params: string[] = [];
 
         if (category) params.push(`category=${encodeURIComponent(category)}`);

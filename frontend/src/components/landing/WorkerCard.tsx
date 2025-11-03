@@ -5,15 +5,15 @@ import React from "react";
 interface WorkerCardProps {
   name: string;
   image: string;
-  location: string;
-  specialty: string;
-  description: string;
-  priceStart: number;
-  totalJobs: number;
-  rating: number;
+  location?: string;
+  specialty?: string;
+  description?: string;
+  priceStart?: number;
+  totalJobs?: number;
+  rating?: number;
 }
 
-const WorkerCard: React.FC<WorkerCardProps> = ({ name, image, location, specialty, description, priceStart, totalJobs, rating }) => {
+const WorkerCard: React.FC<WorkerCardProps> = ({ name, image, location, specialty, description = "", priceStart = 0, totalJobs = 0, rating }) => {
   return (
     <div className="bg-white border border-[#13120F] rounded-2xl p-4 hover:shadow-lg transition w-full h-full flex flex-col">
       {/* Header */}

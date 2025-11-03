@@ -33,6 +33,7 @@ model User {
 
   jobsPosted      Job[]          @relation("UserJobs")        // sebagai company
   applications    Application[]  @relation("UserApplications") // sebagai freelancer
+  transactions    Transaction[]  @relation("UserTransactions")
 }
 
 
@@ -46,7 +47,7 @@ model Job {
   id                  Int        @id @default(autoincrement())
   title               String
   description         String
-  role                String
+  specialty           String
   minSalary           Int
   maxSalary           Int
   image               String?
@@ -55,8 +56,11 @@ model Job {
   contractDeadline    DateTime
   status              JobStatus  @default(OPEN)
   companyId           Int
+  hiredFreelancerId   Int?
+  paymentAmount       Int?
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
+  type                ProjectType @default(JOB)
 
   company             User       @relation("UserJobs", fields: [companyId], references: [id])
   applications        Application[]
@@ -73,6 +77,29 @@ model Application {
   freelancer  User       @relation("UserApplications", fields: [freelancerId], references: [id])
 }
 
+model Transaction {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  type      TransactionType // REVENUE or EXPENSE
+  amount    Int
+  month     Int
+  year      Int
+  createdAt DateTime  @default(now())
+
+  user      User      @relation("UserTransactions", fields: [userId], references: [id])
+}
+
+enum TransactionType {
+  REVENUE
+  EXPENSE
+}
+
+
+enum ProjectType {
+  JOB
+  COURSE
+}
+
 enum Location {
   Jakarta
   Bandung
@@ -80,6 +107,7 @@ enum Location {
   Semarang
   Yogyakarta
   Malang
+  Online
 }
 
 enum JobStatus {

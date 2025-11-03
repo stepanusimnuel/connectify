@@ -1,31 +1,36 @@
 "use client";
-
 import React from "react";
-import { Edit, Trash2, Users } from "lucide-react";
 
-export default function ProjectCard({ job }: { job: any }) {
+interface ProjectCardProps {
+  project: any;
+  isCompany: boolean;
+}
+
+export default function ProjectCard({ project, isCompany }: ProjectCardProps) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow space-y-4">
-      <div className="flex justify-between items-start">
-        <h3 className="text-lg font-semibold">{job.title}</h3>
-        <span className="text-sm text-gray-500">{job.category}</span>
+    <div className="bg-white p-4 rounded-2xl shadow space-y-3">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">
+          {project.title} ({project.type})
+        </h2>
+        <span className="text-sm font-medium">{project.status}</span>
       </div>
-      <p className="text-gray-600">{job.description}</p>
-      <div className="flex justify-between items-center text-sm text-gray-500">
-        <span>Budget: Rp{job.budget.toLocaleString()}</span>
-        <span>{job.location}</span>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button className="flex items-center gap-1 text-blue-600 hover:underline text-sm">
-          <Users size={16} /> See Applicants
-        </button>
-        <button className="text-green-600 hover:underline text-sm flex items-center gap-1">
-          <Edit size={16} /> Edit
-        </button>
-        <button className="text-red-600 hover:underline text-sm flex items-center gap-1">
-          <Trash2 size={16} /> Delete
-        </button>
-      </div>
+      <p className="text-sm text-gray-600">{project.description}</p>
+      <p className="text-sm text-gray-500">Created at: {new Date(project.createdAt).toLocaleDateString()}</p>
+
+      {/* Applicant List (Company only) */}
+      {isCompany && project.applications?.length > 0 && (
+        <div className="mt-2">
+          <h3 className="font-medium">Applicants:</h3>
+          <ul className="text-sm">
+            {project.applications.map((a: any) => (
+              <li key={a.id}>
+                {a.freelancer?.name || "Unknown"} - {a.status}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

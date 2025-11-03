@@ -2,25 +2,6 @@ import { PrismaClient } from "../../generated/prisma/index.js";
 import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
-export const getAllFreelancers = async (req, res) => {
-  try {
-    const { category } = req.query;
-
-    const workers = await prisma.user.findMany({
-      where: {
-        role: "FREELANCER",
-        ...(category ? { specialty: category } : {}),
-      },
-      orderBy: { rating: "desc" },
-    });
-
-    res.status(200).json(workers);
-  } catch (err) {
-    console.error("Get top workers error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 // GET /api/user/me
 export const getMyProfile = async (req, res) => {
   try {

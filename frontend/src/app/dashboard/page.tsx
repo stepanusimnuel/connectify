@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import SummaryCard from "./components/Summary";
-import RevenueChart from "./components/RevenueChart";
+import ProjectChart from "./components/ProjectChart";
 import TopWorkers from "@/components/landing/TopWorkers";
 import Hero from "./components/Hero";
 
@@ -74,7 +74,7 @@ export default function DashboardPage() {
 
       <section className="mt-16">
         <h3 className="text-2xl text-[#01367B] font-medium mb-4">Project & Course Performance</h3>
-        <RevenueChart data={revenueData} />
+        <ProjectChart data={revenueData} />
       </section>
 
       {role === "COMPANY" && (
