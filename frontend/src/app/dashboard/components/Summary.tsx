@@ -1,8 +1,10 @@
+"use client";
+
 import React from "react";
 
 interface SummaryCardProps {
   title: string;
-  value: number;
+  value: number | string;
   description: string;
 }
 

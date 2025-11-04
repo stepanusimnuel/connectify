@@ -15,27 +15,26 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  name        String
-  email       String    @unique
-  password    String
-  role        Role
-  createdAt   DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
 
   // New fields for workers
-  profilePic  String?   // URL foto profil
-  location    String?   // Domisili
-  specialty   String?   // Bidang spesifik, ex: "UI/UX Design"
-  description String?   // Deskripsi
-  priceStart  Int?      // Harga mulai dari
-  totalJobs   Int?      // Berapa job telah diselesaikan
-  rating      Float?    // Rating rata-rata
+  profilePic  String? // URL foto profil
+  location    String? // Domisili
+  specialty   String? // Bidang spesifik, ex: "UI/UX Design"
+  description String? // Deskripsi
+  priceStart  Int? // Harga mulai dari
+  totalJobs   Int? // Berapa job telah diselesaikan
+  rating      Float? // Rating rata-rata
 
-  jobsPosted      Job[]          @relation("UserJobs")        // sebagai company
-  applications    Application[]  @relation("UserApplications") // sebagai freelancer
-  transactions    Transaction[]  @relation("UserTransactions")
+  jobsPosted   Job[]         @relation("UserJobs") // sebagai company
+  applications Application[] @relation("UserApplications") // sebagai freelancer
+  transactions Transaction[] @relation("UserTransactions")
 }
-
 
 enum Role {
   FREELANCER
@@ -44,7 +43,7 @@ enum Role {
 }
 
 model Job {
-  id                  Int        @id @default(autoincrement())
+  id                  Int         @id @default(autoincrement())
   title               String
   description         String
   specialty           String
@@ -54,39 +53,43 @@ model Job {
   location            Location
   applicationDeadline DateTime
   contractDeadline    DateTime
-  status              JobStatus  @default(OPEN)
+  status              JobStatus   @default(OPEN)
   companyId           Int
   hiredFreelancerId   Int?
   paymentAmount       Int?
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
   type                ProjectType @default(JOB)
 
-  company             User       @relation("UserJobs", fields: [companyId], references: [id])
-  applications        Application[]
+  company      User          @relation("UserJobs", fields: [companyId], references: [id])
+  applications Application[]
+  Transaction  Transaction[]
 }
 
 model Application {
-  id          Int       @id @default(autoincrement())
-  jobId       Int
+  id           Int      @id @default(autoincrement())
+  jobId        Int
   freelancerId Int
-  status      String     @default("pending") // pending, approved, rejected
-  createdAt   DateTime   @default(now())
+  status       String   @default("pending") // pending, approved, rejected
+  createdAt    DateTime @default(now())
 
-  job         Job        @relation(fields: [jobId], references: [id])
-  freelancer  User       @relation("UserApplications", fields: [freelancerId], references: [id])
+  job        Job  @relation(fields: [jobId], references: [id])
+  freelancer User @relation("UserApplications", fields: [freelancerId], references: [id])
 }
 
 model Transaction {
-  id        Int       @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   userId    Int
+  jobId     Int?
   type      TransactionType // REVENUE or EXPENSE
   amount    Int
   month     Int
   year      Int
-  createdAt DateTime  @default(now())
+  status    PaymentStatus   @default(POTENTIAL)
+  createdAt DateTime        @default(now())
 
-  user      User      @relation("UserTransactions", fields: [userId], references: [id])
+  user User @relation("UserTransactions", fields: [userId], references: [id])
+  job  Job? @relation(fields: [jobId], references: [id])
 }
 
 enum TransactionType {
@@ -94,6 +97,12 @@ enum TransactionType {
   EXPENSE
 }
 
+enum PaymentStatus {
+  POTENTIAL
+  PENDING
+  SUCCESS
+  FAILED
+}
 
 enum ProjectType {
   JOB

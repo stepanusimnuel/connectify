@@ -199,13 +199,12 @@ export const updateProjectStatus = async (req, res) => {
     if (!job) return res.status(404).json({ message: "Job not found" });
 
     let updateData = {};
-    let transactions = [];
+    let newTransactions = [];
 
     switch (status) {
       case "CLOSED":
         if (!hiredFreelancerId) return res.status(400).json({ message: "You must select a freelancer to close the job" });
 
-        // Update semua application: hanya satu approved
         await prisma.application.updateMany({
           where: { jobId: job.id, freelancerId: { not: parseInt(hiredFreelancerId) } },
           data: { status: "rejected" },
@@ -226,29 +225,75 @@ export const updateProjectStatus = async (req, res) => {
 
         if (paymentAmount < job.minSalary || paymentAmount > job.maxSalary) return res.status(400).json({ message: "Payment must be within salary range" });
 
+        // ketika job mulai ongoing → buat payment potential
+        const now = new Date();
+        newTransactions = [
+          {
+            userId: job.hiredFreelancerId,
+            jobId: job.id,
+            type: "REVENUE",
+            amount: paymentAmount,
+            month: now.getMonth() + 1,
+            year: now.getFullYear(),
+            status: "POTENTIAL",
+          },
+          {
+            userId: job.companyId,
+            jobId: job.id,
+            type: "EXPENSE",
+            amount: paymentAmount,
+            month: now.getMonth() + 1,
+            year: now.getFullYear(),
+            status: "POTENTIAL",
+          },
+        ];
+
         updateData = { paymentAmount, status: "ONGOING" };
         break;
 
       case "COMPLETED":
         if (job.status !== "ONGOING") return res.status(400).json({ message: "Job must be ongoing first" });
 
-        const now = new Date();
-        transactions = [
-          {
-            userId: job.hiredFreelancerId,
-            type: "REVENUE",
-            amount: job.paymentAmount,
-            month: now.getMonth() + 1,
-            year: now.getFullYear(),
-          },
-          {
-            userId: job.companyId,
-            type: "EXPENSE",
-            amount: job.paymentAmount,
-            month: now.getMonth() + 1,
-            year: now.getFullYear(),
-          },
-        ];
+        // ubah payment dari potential → pending
+        await prisma.transaction.updateMany({
+          where: { jobId: job.id, status: "POTENTIAL" },
+          data: { status: "PENDING" },
+        });
+
+        // delay otomatis ubah ke success setelah 15 menit
+        setTimeout(async () => {
+          try {
+            await prisma.transaction.updateMany({
+              where: { jobId: job.id, status: "PENDING" },
+              data: { status: "SUCCESS" },
+            });
+
+            // tambahkan ke financial summary
+            const transactions = await prisma.transaction.findMany({
+              where: { jobId: job.id, status: "SUCCESS" },
+            });
+
+            for (const t of transactions) {
+              if (t.type === "REVENUE") {
+                await prisma.user.update({
+                  where: { id: t.userId },
+                  data: {
+                    revenue: { increment: t.amount },
+                  },
+                });
+              } else if (t.type === "EXPENSE") {
+                await prisma.user.update({
+                  where: { id: t.userId },
+                  data: {
+                    expense: { increment: t.amount },
+                  },
+                });
+              }
+            }
+          } catch (err) {
+            console.error("Auto payment update failed:", err);
+          }
+        }, 15 * 60 * 1000); // 15 menit
 
         updateData = { status: "COMPLETED" };
         break;
@@ -262,7 +307,7 @@ export const updateProjectStatus = async (req, res) => {
       data: updateData,
     });
 
-    if (transactions.length > 0) await prisma.transaction.createMany({ data: transactions });
+    if (newTransactions.length > 0) await prisma.transaction.createMany({ data: newTransactions });
 
     res.json({ message: "Job status updated successfully", job: updatedJob });
   } catch (err) {

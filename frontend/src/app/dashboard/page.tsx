@@ -2,86 +2,113 @@
 
 import React, { useEffect, useState } from "react";
 import SummaryCard from "./components/Summary";
-import ProjectChart from "./components/ProjectChart";
-import TopWorkers from "@/components/landing/TopWorkers";
 import Hero from "./components/Hero";
-
-type Role = "COMPANY" | "FREELANCER";
+import TopWorkers from "@/components/landing/TopWorkers";
+import JobCard from "./components/JobCard";
+import { useRouter } from "next/navigation";
 
 interface SummaryData {
   activeProjects: number;
-  ongoingContracts: number;
-  pendingPayments: number;
-  newApplicants: number;
+  pendingApplications: number;
+  upcomingPayments: number;
 }
 
 export default function DashboardPage() {
-  const [role, setRole] = useState<Role | null>(null);
+  const router = useRouter();
+  const [heroProject, setHeroProject] = useState<any>(null);
   const [summary, setSummary] = useState<SummaryData>({
     activeProjects: 0,
-    ongoingContracts: 0,
-    pendingPayments: 0,
-    newApplicants: 0,
+    pendingApplications: 0,
+    upcomingPayments: 0,
   });
+  const [topJobs, setTopJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    const user = userData ? JSON.parse(userData) : null;
-    if (user?.role) {
-      const r = user.role.toUpperCase() as Role;
-      setRole(r);
+    const fetchData = async () => {
+      try {
+        // Hero Project
+        const heroRes = await fetch(`${API_BASE}/api/dashboard/hero`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const heroData = await heroRes.json();
+        setHeroProject(heroData);
 
-      // Dummy data, nanti bisa fetch dari backend
-      if (r === "COMPANY") {
-        setSummary({ activeProjects: 5, ongoingContracts: 3, pendingPayments: 2, newApplicants: 4 });
-        setRevenueData([
-          { month: "Jan", revenue: 1500 },
-          { month: "Feb", revenue: 2800 },
-          { month: "Mar", revenue: 3200 },
-        ]);
-      } else {
-        setSummary({ activeProjects: 2, ongoingContracts: 1, pendingPayments: 1, newApplicants: 0 });
-        setRevenueData([
-          { month: "Jan", revenue: 800 },
-          { month: "Feb", revenue: 1200 },
-          { month: "Mar", revenue: 900 },
-        ]);
+        // Summary Cards
+        const summaryRes = await fetch(`${API_BASE}/api/dashboard/summary`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const summaryData = await summaryRes.json();
+        console.log(summaryData);
+        setSummary(summaryData);
+
+        // Top Freelancers
+        // const topWorkersRes = await fetch(`${API_BASE}/api/dashboard/top-freelancers`);
+        // const topWorkersData = await topWorkersRes.json();
+        // setTopFreelancers(topWorkersData);
+
+        // Top Jobs
+        // const topJobsRes = await fetch(`${API_BASE}/api/dashboard/top-jobs`);
+        // const topJobsData = await topJobsRes.json();
+        // setTopJobs(topJobsData);
+
+        const jobRes = await fetch(`${API_BASE}/api/projects/company/job`);
+        const jobData = await jobRes.json();
+        setTopJobs(jobData);
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchData();
   }, []);
 
-  if (!role) return <div>Loading...</div>;
+  const handleViewAll = () => {
+    router.push("dashboard/browse-jobs");
+  };
+
+  if (loading) return <p className="p-6 text-gray-600">Loading dashboard...</p>;
 
   return (
     <div className="space-y-8">
       <div className="text-center text-[#01367B]">
-        <p className="my-2 text-sm">{role === "COMPANY" ? "Overview of company projects, payment and top talents" : "Overview of your projects, applications and earnings"}</p>
+        <p className="my-2 text-sm">Overview of projects, applications, and payments</p>
         <h1 className="text-3xl font-bold">My Dashboard</h1>
       </div>
 
-      <Hero />
+      {/* Hero Section */}
+      {heroProject ? <Hero project={heroProject} /> : <p className="text-center text-gray-500">No active project</p>}
 
+      {/* Summary Cards */}
       <section className="mt-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SummaryCard title={role === "COMPANY" ? "Active Projects" : "Applied Jobs"} value={summary.activeProjects} description={role === "COMPANY" ? "Job and course" : "Jobs you applied"} />
-          <SummaryCard title="Ongoing Contracts" value={summary.ongoingContracts} description="Managed via Escrow" />
-          <SummaryCard title="Pending Payments" value={summary.pendingPayments} description="Awaiting release" />
-          <SummaryCard title={role === "COMPANY" ? "New Applicants" : "Completed Jobs"} value={summary.newApplicants} description="Waiting approval" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <SummaryCard title="Active Projects" value={summary.activeProjects} description="Ongoing jobs" />
+          <SummaryCard title="Pending Applications" value={summary.pendingApplications} description="Awaiting response" />
+          <SummaryCard title="Upcoming Payments" value={"IDR" + summary.upcomingPayments.toLocaleString()} description="Potential or pending" />
         </div>
       </section>
 
+      {/* Top Freelancers */}
       <section className="mt-16">
-        <h3 className="text-2xl text-[#01367B] font-medium mb-4">Project & Course Performance</h3>
-        <ProjectChart data={revenueData} />
+        <TopWorkers title="Top Freelancers" />
       </section>
 
-      {role === "COMPANY" && (
-        <section className="mt-16">
-          <TopWorkers title="Discover Top Freelancers" />
-        </section>
-      )}
+      {/* Top Jobs */}
+      <section className="mt-16 pb-16">
+        <div className="flex justify-between">
+          <h2 className="text-3xl font-bold text-[#01367B]">Newest Jobs</h2>
+          <button onClick={handleViewAll} className="px-12 py-3 text-sm font-medium rounded-md border border-gray-300 transition bg-white hover:bg-[#B0CFF5]">
+            View All
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          {topJobs.length > 0 ? topJobs.slice(0, Math.min(topJobs.length, 6)).map((job) => <JobCard key={job.id} job={job} />) : <p className="text-center text-gray-500 col-span-3">No jobs available</p>}
+        </div>
+      </section>
     </div>
   );
 }

@@ -38,7 +38,7 @@ export default function DashboardNavbar({ role }: DashboardNavbarProps) {
     role === "COMPANY" ? { label: "My Projects", href: "/dashboard/company/my-projects", key: "my-projects" } : { label: "My Projects", href: "/dashboard/freelancer/my-projects", key: "my-projects" },
     { label: "Browse Jobs", href: "/dashboard/browse-jobs", key: "browse-jobs" },
     { label: "Browse Freelancers", href: "/dashboard/browse-freelancers", key: "browse-freelancers" },
-    { label: "My Payments", href: role === "COMPANY" ? "/dashboard/company/payments" : "/dashboard/freelancer/payments", key: "my-payments" },
+    { label: "My Payments", href: role === "COMPANY" ? "/dashboard/company/my-payments" : "/dashboard/freelancer/my-payments", key: "my-payments" },
     { label: "Terms of Service", href: "/dashboard/terms", key: "terms" },
   ].filter(Boolean);
 

@@ -9,6 +9,8 @@ import projectRoutes from "./src/routes/projects.js";
 import freelancerRoutes from "./src/routes/freelancers.js";
 import uploadRoutes from "./src/routes/uploads.js";
 import applicationRoutes from "./src/routes/applications.js";
+import paymentRoutes from "./src/routes/payments.js";
+import dashboardRoutes from "./src/routes/dashboard.js";
 
 dotenv.config();
 const app = express();
@@ -28,6 +30,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/freelancers", freelancerRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/applications", applicationRoutes);
