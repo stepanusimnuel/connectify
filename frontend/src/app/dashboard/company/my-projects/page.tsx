@@ -52,14 +52,9 @@ export default function MyProjectsPage() {
     const fetchFinance = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/finance/${user.id}`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
-        const raw = await res.json();
+        const data = await res.json();
 
-        const chartArray: ChartData[] = Object.entries(raw).map(([key, val]: [string, any]) => ({
-          month: key,
-          revenue: val.revenue,
-          expenses: val.expenses,
-        }));
-        setChartData(chartArray);
+        setChartData(data);
       } catch (err) {
         console.error(err);
       }

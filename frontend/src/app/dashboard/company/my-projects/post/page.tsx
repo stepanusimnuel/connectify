@@ -20,7 +20,7 @@ export default function PostProjectPage() {
   const [applicationDeadline, setApplicationDeadline] = useState("");
   const [contractDeadline, setContractDeadline] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState("");
+  const [preview, setPreview] = useState<string>("/image-preview-default.png");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -31,47 +31,65 @@ export default function PostProjectPage() {
       return;
     }
 
-    const imageUrl = imageFile ? `/uploads/${imageFile.name}` : "/image-preview-default.png";
-
-    const now = new Date();
-    const oneYearLater = new Date(now);
-    oneYearLater.setFullYear(now.getFullYear() + 1);
-
-    const payload =
-      type === "JOB"
-        ? {
-            title,
-            description,
-            specialty,
-            minSalary,
-            maxSalary,
-            paymentAmount,
-            image: imageUrl,
-            location,
-            applicationDeadline,
-            contractDeadline,
-            type,
-            companyId,
-          }
-        : {
-            title,
-            description,
-            specialty,
-            paymentAmount,
-            image: imageUrl,
-            location,
-            type,
-            companyId,
-            contractDeadline: oneYearLater,
-          };
+    setLoading(true);
+    setMessage("");
 
     try {
-      setLoading(true);
-      const res = await fetch(`${API_BASE}/api/company`, {
+      let imageUrl = "/image-preview-default.png";
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        const uploadRes = await fetch(`${API_BASE}/api/uploads`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        if (uploadRes.ok && uploadData.url) {
+          imageUrl = uploadData.url;
+        }
+      }
+
+      const now = new Date();
+      const oneYearLater = new Date(now);
+      oneYearLater.setFullYear(now.getFullYear() + 1);
+
+      const payload =
+        type === "JOB"
+          ? {
+              title,
+              description,
+              specialty,
+              minSalary,
+              maxSalary,
+              paymentAmount,
+              image: imageUrl,
+              location,
+              applicationDeadline,
+              contractDeadline,
+              type,
+              companyId,
+            }
+          : {
+              title,
+              description,
+              specialty,
+              paymentAmount,
+              image: imageUrl,
+              location,
+              type,
+              companyId,
+              contractDeadline: oneYearLater,
+            };
+
+      const res = await fetch(`${API_BASE}/api/projects/company`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
       const data = await res.json();
       if (res.ok) {
         setMessage(`${type} created successfully!`);
@@ -93,15 +111,12 @@ export default function PostProjectPage() {
 
       {/* Toggle Job / Course */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="flex space-x-4">
-          <button type="button" className={`px-4 py-2 rounded-lg border ${type === "JOB" ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600"}`} onClick={() => setType("JOB")}>
-            Job
-          </button>
-
-          <button type="button" className={`px-4 py-2 rounded-lg border ${type === "COURSE" ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600"}`} onClick={() => setType("COURSE")}>
-            Course
-          </button>
-        </div>
+        <button type="button" className={`px-4 py-2 rounded-lg border ${type === "JOB" ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600"}`} onClick={() => setType("JOB")}>
+          Job
+        </button>
+        <button type="button" className={`px-4 py-2 rounded-lg border ${type === "COURSE" ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600"}`} onClick={() => setType("COURSE")}>
+          Course
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -172,31 +187,24 @@ export default function PostProjectPage() {
 
         {/* Upload Image */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Project Image</label>
-          <div className="flex items-center space-x-4">
-            <div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImageFile(file);
-                    setPreview(URL.createObjectURL(file));
-                  }
-                }}
-                className="block w-full text-sm text-gray-500
-                           file:mr-4 file:py-2 file:px-4
-                           file:rounded-l-md file:border-0
-                           file:text-sm file:font-semibold
-                           file:bg-blue-200 file:text-blue-700
-                           hover:file:bg-blue-100"
-              />
-              <p className="text-xs text-gray-400 mt-2">JPG, PNG, or JPEG up to 10MB</p>
-            </div>
-          </div>
+          <label className="block text-sm font-medium mb-2">Project Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setImageFile(file);
+                setPreview(URL.createObjectURL(file));
+              }
+            }}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                       file:rounded-l-md file:border-0 file:text-sm file:font-semibold
+                       file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-50"
+          />
+
           <div className="w-full mt-6 min-h-64 bg-gray-100 border rounded-lg flex items-center justify-center overflow-hidden">
-            <img src={preview || "/image-preview-default.png"} alt="Preview" className="object-cover w-full h-full" />
+            <img src={preview} alt="Preview" className="object-cover w-full h-full" />
           </div>
         </div>
 

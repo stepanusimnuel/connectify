@@ -16,7 +16,7 @@ interface Job {
   image?: string;
   applicationDeadline: Date;
   contractDeadline: Date;
-  status: number;
+  status: "OPEN" | "CLOSED" | "COMPLETED" | "ONGOING";
   createdAt: Date;
   type: string;
   company: {
